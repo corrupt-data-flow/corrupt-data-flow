@@ -14,6 +14,21 @@
             position:relative;overflow-x:hidden;
             user-select:none;-webkit-user-select:none;
         }
+        #fixedClock {
+            position: fixed;
+            top: 20px;
+            right: 25px;
+            font-size: 16px;
+            color: #63a4ff;
+            z-index: 9999;
+            text-shadow: 0 0 8px rgba(99,164,255,0.6);
+            font-weight: bold;
+            background: rgba(17,20,32,0.7);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(99,164,255,0.3);
+            backdrop-filter: blur(4px);
+        }
         #starfield{
             position:fixed;top:0;left:0;width:100%;height:100%;
             z-index:-1;background:#0a0a12;
@@ -62,48 +77,73 @@
     </style>
 </head>
 <body>
+<div id="fixedClock"></div>
 <canvas id="starfield"></canvas>
 <div class="container">
     <h1 lang-zh>CDF</h1>
     <h1 lang-en>CDF</h1>
     <div class="sub-title" lang-zh>Corrupt Data Flow · 官方站点</div>
     <div class="sub-title" lang-en>Corrupt Data Flow · Official Site</div>
+
     <div class="box">
         <h2 lang-zh>关于 CDF</h2>
         <h2 lang-en>About CDF</h2>
         <p lang-zh>极简 · 稳定 · 高性能<br>专注移动端定制化工具研发，持续迭代更新，追求极致体验。</p>
         <p lang-en>Minimalist · Stable · High Performance<br>Focus on mobile customization tools, continuous updates, ultimate experience.</p>
     </div>
+
     <div class="box">
-        <h2 lang-zh>最新版本</h2>
-        <h2 lang-en>Latest Version</h2>
+        <h2 lang-zh>Corrupt Data Flow</h2>
+        <h2 lang-en>Corrupt Data Flow</h2>
+        <p lang-zh>最新版本<br>版本号：V1.1<br>更新时间：2026年5月16日</p>
+        <p lang-en>Latest Version<br>Version: V1.1<br>Update Time: May 16, 2026</p>
+        <button class="download-btn" id="newDownloadBtn">下载最新版</button>
+        <div class="copy-tip" id="newCopyTip">新版链接已复制！前往官方群获取提取码</div>
+    </div>
+
+    <div class="box">
+        <h2 lang-zh>历史旧版</h2>
+        <h2 lang-en>Old Version</h2>
         <p lang-zh>当前版本：v1.0.0<br>更新时间：2026.05.12<br>提取码请加入官方群获取</p>
         <p lang-en>Version: v1.0.0<br>Updated: 2026.05.12<br>Get password from official group</p>
         <button class="download-btn" id="downloadBtn">立即下载</button>
         <div class="copy-tip" id="copyTip">下载链接已复制！请前往官方群获取提取码</div>
     </div>
+
     <div class="box">
         <h2 lang-zh>官方渠道</h2>
         <h2 lang-en>Official Channels</h2>
         <p lang-zh>官方Q群:1103216895<br>第三方Q群:1067868229<br>本站为唯一官方发布站点</p>
         <p lang-en>Official QQ Group:1103216895<br>Third-party:1067868229<br>This is the only official site</p>
     </div>
+
     <div class="footer" lang-zh>© 2026 CDF All Rights Reserved.</div>
     <div class="footer" lang-en>© 2026 CDF All Rights Reserved.</div>
 </div>
 
 <script>
-// 防查看源码（单文件版，不依赖外部）
+// 右上角时钟
+function updateClock(){
+    let t=new Date();
+    let h=String(t.getHours()).padStart(2,'0');
+    let m=String(t.getMinutes()).padStart(2,'0');
+    let s=String(t.getSeconds()).padStart(2,'0');
+    document.getElementById("fixedClock").innerText=h+":"+m+":"+s;
+}
+updateClock();
+setInterval(updateClock,1000);
+
+// 防源码
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{
     if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'))||(e.ctrlKey&&e.key==='U')||(e.ctrlKey&&e.key==='S')){
-        e.preventDefault();return false;
+        e.preventDefault();
     }
 });
 document.body.style.userSelect='none';
-setInterval(()=>{console.clear()},500);
+setInterval(()=>console.clear(),500);
 
-// 星空连线（单文件内置，不依赖外部）
+// 星空
 const canvas=document.getElementById('starfield');
 const ctx=canvas.getContext('2d');
 let stars=[];
@@ -131,9 +171,9 @@ function drawStars(){
     for(let i=0;i<stars.length;i++){
         for(let j=i+1;j<stars.length;j++){
             if(stars[i].connections>=maxConnectionsPerStar||stars[j].connections>=maxConnectionsPerStar)continue;
-            const dx=stars[i].x-stars[j].x;
-            const dy=stars[i].y-stars[j].y;
-            const d=Math.hypot(dx,dy);
+            let dx=stars[i].x-stars[j].x;
+            let dy=stars[i].y-stars[j].y;
+            let d=Math.hypot(dx,dy);
             if(d<lineDistance){
                 ctx.beginPath();
                 ctx.moveTo(stars[i].x,stars[i].y);
@@ -161,15 +201,10 @@ window.addEventListener('resize',resizeCanvas);
 resizeCanvas();
 drawStars();
 
-// 樱校音效（单文件内置，不依赖外部）
+// 音效
 function playSound(type){
-    let url;
-    if(type==='hover'){
-        url='https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-hover.mp3';
-    }else if(type==='click'){
-        url='https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-click.mp3';
-    }
-    const audio=new Audio(url);
+    let url=type==='hover'?'https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-hover.mp3':'https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-click.mp3';
+    let audio=new Audio(url);
     audio.volume=0.4;
     audio.play().catch(()=>{});
 }
@@ -178,45 +213,61 @@ document.querySelectorAll('.download-btn,.box').forEach(el=>{
     el.addEventListener('click',()=>playSound('click'));
 });
 
-// 系统判断+双语+Windows放大（单文件内置）
+// 双语
 const ua=navigator.userAgent.toLowerCase();
-const isWindows=ua.includes('windows');
-const isAndroid=ua.includes('android')||ua.includes('huawei');
-const isChinese=navigator.language.includes('zh');
-if(isWindows)document.body.classList.add('windows');
-const btn=document.getElementById('downloadBtn');
-const tip=document.getElementById('copyTip');
-if(isAndroid||isChinese){
+const isWin=ua.includes('windows');
+const isPhone=ua.includes('android')||ua.includes('huawei');
+const isZh=navigator.language.includes('zh');
+if(isWin)document.body.classList.add('windows');
+
+let oldBtn=document.getElementById('downloadBtn');
+let oldTip=document.getElementById('copyTip');
+let newBtn=document.getElementById('newDownloadBtn');
+let newTip=document.getElementById('newCopyTip');
+
+if(isPhone||isZh){
     document.querySelectorAll('[lang-zh]').forEach(e=>e.style.display='block');
-    btn.textContent='立即下载';
-    tip.textContent='下载链接已复制！请前往官方群获取提取码';
 }else{
     document.querySelectorAll('[lang-en]').forEach(e=>e.style.display='block');
-    btn.textContent='Download Now';
-    tip.textContent='Link copied! Get password from official group';
 }
 
-// 下载功能（单文件内置）
-const downloadLink="https://1852853792.share.123865.com/123pan/O5wgvd-eoKNH";
-btn.addEventListener('click',()=>{
-    navigator.clipboard.writeText(downloadLink).then(()=>{
-        tip.style.opacity='1';
-        setTimeout(()=>tip.style.opacity='0',2500);
-    }).catch(()=>alert('复制失败：'+downloadLink));
-    window.open(downloadLink,'_blank');
-});
+// 下载
+const oldUrl="https://1852853792.share.123865.com/123pan/O5wgvd-eoKNH";
+const newUrl="https://1852853792.share.123865.com/123pan/O5wgvd-avGOH";
 
-// 无限滚动动画（单文件内置）
+oldBtn.onclick=()=>{
+    navigator.clipboard.writeText(oldUrl).then(()=>{
+        oldTip.style.opacity=1;
+        setTimeout(()=>oldTip.style.opacity=0,2500);
+    });
+    window.open(oldUrl);
+};
+newBtn.onclick=()=>{
+    navigator.clipboard.writeText(newUrl).then(()=>{
+        newTip.style.opacity=1;
+        setTimeout(()=>newTip.style.opacity=0,2500);
+    });
+    window.open(newUrl);
+};
+
+// ✅ 关键修复：无限 弹出+消失 动画
 const boxes=document.querySelectorAll('.box');
-function check(){
-    boxes.forEach(b=>{
-        const r=b.getBoundingClientRect();
-        r.top<window.innerHeight*0.85&&r.bottom>0?b.classList.add('show'):b.classList.remove('show');
+function checkScroll(){
+    boxes.forEach(box=>{
+        const rect=box.getBoundingClientRect();
+        // 进入视口 → 弹出
+        if(rect.top < window.innerHeight*0.85 && rect.bottom > 0){
+            box.classList.add('show');
+        }
+        // 完全离开 → 消失（可重复）
+        else if(rect.bottom < 0 || rect.top > window.innerHeight){
+            box.classList.remove('show');
+        }
     });
 }
-window.addEventListener('scroll',check);
-window.addEventListener('load',check);
-window.addEventListener('resize',check);
+window.addEventListener('scroll',checkScroll);
+window.addEventListener('load',checkScroll);
+window.addEventListener('resize',checkScroll);
 </script>
 </body>
-</html>
+    </html>
