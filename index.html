@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDF Official Site</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html {scroll-behavior: smooth;}
+        body{
+            background:#0a0a12;color:#eee;
+            font-family:"Microsoft Yahei",sans-serif;
+            text-align:center;padding:50px 20px;
+            position:relative;overflow-x:hidden;
+            user-select:none;-webkit-user-select:none;
+        }
+        #starfield{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            z-index:-1;background:#0a0a12;
+        }
+        body.windows{
+            zoom:1.35;transform:scale(1.35);
+            transform-origin:center top;width:74%;margin:0 auto;
+        }
+        .container{max-width:800px;margin:0 auto;}
+        h1{font-size:48px;color:#63a4ff;margin-bottom:10px;}
+        .sub-title{
+            color:#8892b0;font-size:18px;margin-bottom:40px;
+            opacity:0;animation:fadeIn 1s ease forwards 0.5s;
+        }
+        @keyframes fadeIn{to{opacity:1;}}
+        .box{
+            background:#111420;padding:30px;border-radius:12px;
+            margin:20px 0;border:1px solid #23283a;
+            opacity:0;transform:translateY(30px);transition:all 0.6s ease;
+            position:relative;overflow:hidden;
+        }
+        .box:hover{box-shadow:0 0 15px rgba(99,164,255,0.4);border-color:#63a4ff;}
+        .box.show{opacity:1;transform:translateY(0);}
+        h2{color:#79b8ff;margin-bottom:15px;font-size:36px;}
+        p{line-height:1.8;color:#b0c4de;font-size:20px;}
+        .download-btn{
+            display:inline-block;margin-top:20px;padding:12px 35px;
+            background:#2563eb;color:#fff;text-decoration:none;
+            border-radius:8px;transition:0.3s;cursor:pointer;border:none;font-size:16px;
+            position:relative;overflow:hidden;
+        }
+        .download-btn::before{
+            content:"";position:absolute;top:50%;left:50%;width:0;height:0;
+            background:rgba(255,255,255,0.3);border-radius:50%;
+            transform:translate(-50%,-50%);transition:width 0.6s,height 0.6s;
+        }
+        .download-btn:hover::before{width:300px;height:300px;}
+        .download-btn:hover{
+            background:#1d48d8;transform:translateY(-2px) scale(1.05);
+            box-shadow:0 0 20px rgba(37,99,235,0.5);
+        }
+        .copy-tip{margin-top:10px;color:#4ade80;font-size:14px;opacity:0;transition:opacity 0.3s;}
+        .footer{margin-top:50px;color:#555;font-size:14px;}
+        [lang-en]{display:none;}
+        [lang-zh]{display:none;}
+    </style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="container">
+    <h1 lang-zh>CDF</h1>
+    <h1 lang-en>CDF</h1>
+    <div class="sub-title" lang-zh>Corrupt Data Flow · 官方站点</div>
+    <div class="sub-title" lang-en>Corrupt Data Flow · Official Site</div>
+    <div class="box">
+        <h2 lang-zh>关于 CDF</h2>
+        <h2 lang-en>About CDF</h2>
+        <p lang-zh>极简 · 稳定 · 高性能<br>专注移动端定制化工具研发，持续迭代更新，追求极致体验。</p>
+        <p lang-en>Minimalist · Stable · High Performance<br>Focus on mobile customization tools, continuous updates, ultimate experience.</p>
+    </div>
+    <div class="box">
+        <h2 lang-zh>最新版本</h2>
+        <h2 lang-en>Latest Version</h2>
+        <p lang-zh>当前版本：v1.0.0<br>更新时间：2026.05.12<br>提取码请加入官方群获取</p>
+        <p lang-en>Version: v1.0.0<br>Updated: 2026.05.12<br>Get password from official group</p>
+        <button class="download-btn" id="downloadBtn">立即下载</button>
+        <div class="copy-tip" id="copyTip">下载链接已复制！请前往官方群获取提取码</div>
+    </div>
+    <div class="box">
+        <h2 lang-zh>官方渠道</h2>
+        <h2 lang-en>Official Channels</h2>
+        <p lang-zh>官方Q群:1103216895<br>第三方Q群:1067868229<br>本站为唯一官方发布站点</p>
+        <p lang-en>Official QQ Group:1103216895<br>Third-party:1067868229<br>This is the only official site</p>
+    </div>
+    <div class="footer" lang-zh>© 2026 CDF All Rights Reserved.</div>
+    <div class="footer" lang-en>© 2026 CDF All Rights Reserved.</div>
+</div>
+
+<script>
+// 防查看源码（单文件版，不依赖外部）
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'))||(e.ctrlKey&&e.key==='U')||(e.ctrlKey&&e.key==='S')){
+        e.preventDefault();return false;
+    }
+});
+document.body.style.userSelect='none';
+setInterval(()=>{console.clear()},500);
+
+// 星空连线（单文件内置，不依赖外部）
+const canvas=document.getElementById('starfield');
+const ctx=canvas.getContext('2d');
+let stars=[];
+const lineDistance=120;
+const maxConnectionsPerStar=2;
+function resizeCanvas(){
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    stars=[];
+    for(let i=0;i<80;i++){
+        stars.push({
+            x:Math.random()*canvas.width,
+            y:Math.random()*canvas.height,
+            radius:Math.random()*1.2+0.3,
+            speed:Math.random()*0.2+0.05,
+            connections:0
+        });
+    }
+}
+function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s=>s.connections=0);
+    ctx.strokeStyle='rgba(99,164,255,0.18)';
+    ctx.lineWidth=0.4;
+    for(let i=0;i<stars.length;i++){
+        for(let j=i+1;j<stars.length;j++){
+            if(stars[i].connections>=maxConnectionsPerStar||stars[j].connections>=maxConnectionsPerStar)continue;
+            const dx=stars[i].x-stars[j].x;
+            const dy=stars[i].y-stars[j].y;
+            const d=Math.hypot(dx,dy);
+            if(d<lineDistance){
+                ctx.beginPath();
+                ctx.moveTo(stars[i].x,stars[i].y);
+                ctx.lineTo(stars[j].x,stars[j].y);
+                ctx.stroke();
+                stars[i].connections++;
+                stars[j].connections++;
+            }
+        }
+    }
+    ctx.fillStyle='#fff';
+    stars.forEach(s=>{
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.radius,0,Math.PI*2);
+        ctx.fill();
+        s.y+=s.speed;
+        if(s.y>canvas.height){
+            s.y=0;
+            s.x=Math.random()*canvas.width;
+        }
+    });
+    requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+drawStars();
+
+// 樱校音效（单文件内置，不依赖外部）
+function playSound(type){
+    let url;
+    if(type==='hover'){
+        url='https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-hover.mp3';
+    }else if(type==='click'){
+        url='https://cdn.jsdelivr.net/gh/fadyah/wav/yingxiao-click.mp3';
+    }
+    const audio=new Audio(url);
+    audio.volume=0.4;
+    audio.play().catch(()=>{});
+}
+document.querySelectorAll('.download-btn,.box').forEach(el=>{
+    el.addEventListener('mouseenter',()=>playSound('hover'));
+    el.addEventListener('click',()=>playSound('click'));
+});
+
+// 系统判断+双语+Windows放大（单文件内置）
+const ua=navigator.userAgent.toLowerCase();
+const isWindows=ua.includes('windows');
+const isAndroid=ua.includes('android')||ua.includes('huawei');
+const isChinese=navigator.language.includes('zh');
+if(isWindows)document.body.classList.add('windows');
+const btn=document.getElementById('downloadBtn');
+const tip=document.getElementById('copyTip');
+if(isAndroid||isChinese){
+    document.querySelectorAll('[lang-zh]').forEach(e=>e.style.display='block');
+    btn.textContent='立即下载';
+    tip.textContent='下载链接已复制！请前往官方群获取提取码';
+}else{
+    document.querySelectorAll('[lang-en]').forEach(e=>e.style.display='block');
+    btn.textContent='Download Now';
+    tip.textContent='Link copied! Get password from official group';
+}
+
+// 下载功能（单文件内置）
+const downloadLink="https://1852853792.share.123865.com/123pan/O5wgvd-eoKNH";
+btn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(downloadLink).then(()=>{
+        tip.style.opacity='1';
+        setTimeout(()=>tip.style.opacity='0',2500);
+    }).catch(()=>alert('复制失败：'+downloadLink));
+    window.open(downloadLink,'_blank');
+});
+
+// 无限滚动动画（单文件内置）
+const boxes=document.querySelectorAll('.box');
+function check(){
+    boxes.forEach(b=>{
+        const r=b.getBoundingClientRect();
+        r.top<window.innerHeight*0.85&&r.bottom>0?b.classList.add('show'):b.classList.remove('show');
+    });
+}
+window.addEventListener('scroll',check);
+window.addEventListener('load',check);
+window.addEventListener('resize',check);
+</script>
+</body>
+</html>
